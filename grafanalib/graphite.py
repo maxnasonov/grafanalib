@@ -1,6 +1,7 @@
 """Support for Graphite."""
 
 import attr
+from attr.validators import instance_of
 
 @attr.s
 class GraphiteTarget(object):
