@@ -800,7 +800,7 @@ class Alert(object):
 class Dashboard(object):
 
     title = attr.ib()
-    rows = attr.ib()
+    panels = attr.ib(default=attr.Factory(list), convert=_balance_panels)
     annotations = attr.ib(
         default=attr.Factory(Annotations),
         validator=instance_of(Annotations),
@@ -841,12 +841,11 @@ class Dashboard(object):
     version = attr.ib(default=0)
 
     def _iter_panels(self):
-        for row in self.rows:
-            for panel in row._iter_panels():
-                yield panel
+        for panel in self.panels:
+            yield panel
 
     def _map_panels(self, f):
-        return attr.assoc(self, rows=[r._map_panels(f) for r in self.rows])
+        return attr.assoc(self, panels=list(map(f, self.panels)))
 
     def auto_panel_ids(self):
         """Give unique IDs all the panels without IDs.
@@ -873,7 +872,7 @@ class Dashboard(object):
             'id': self.id,
             'links': self.links,
             'refresh': self.refresh,
-            'rows': self.rows,
+            'panels': self.panels,
             'schemaVersion': self.schemaVersion,
             'sharedCrosshair': self.sharedCrosshair,
             'style': self.style,
@@ -944,6 +943,7 @@ class Graph(object):
             'error': self.error,
             'fill': self.fill,
             'grid': self.grid,
+            'gridPos': {'h': 7, 'w': 24, 'x': 0, 'y': 0},
             'id': self.id,
             'isNew': self.isNew,
             'legend': self.legend,
